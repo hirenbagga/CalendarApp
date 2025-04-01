@@ -1,6 +1,6 @@
-/*
 package com.hask.hasktask.service;
 
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.kafka.core.KafkaTemplate;
 import org.springframework.stereotype.Service;
 
@@ -9,8 +9,10 @@ public class KafkaProducerService {
 
     final private KafkaTemplate<String, String> kafkaTemplate;
 
-    private final String taskTopic = "task-events";  // Kafka topic for task-related events
-    private final String eventTopic = "event-events";  // Kafka topic for event-related events
+    @Value("${haskTask.app.topics.eventTopic}")
+    private String eventTopic;  // Kafka topic for event-related events
+    @Value("${haskTask.app.topics.taskTopic}")
+    private String taskTopic;  // Kafka topic for task-related events
 
     public KafkaProducerService(KafkaTemplate<String, String> kafkaTemplate) {
         this.kafkaTemplate = kafkaTemplate;
@@ -53,4 +55,3 @@ public class KafkaProducerService {
 
     // update task event\
 }
-*/

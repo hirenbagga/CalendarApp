@@ -1,0 +1,112 @@
+package com.hask.hasktask.controller;
+
+import com.hask.hasktask.model.AuthenticateRequest;
+import com.hask.hasktask.model.JWTResponse;
+import com.hask.hasktask.model.RegisterRequest;
+import com.hask.hasktask.service.AuthenticationService;
+//import io.swagger.v3.oas.annotations.Hidden;
+import jakarta.servlet.http.HttpServletRequest;
+import jakarta.servlet.http.HttpServletResponse;
+import jakarta.validation.Valid;
+import lombok.RequiredArgsConstructor;
+import org.springframework.http.ResponseEntity;
+import org.springframework.web.bind.annotation.*;
+
+import java.io.IOException;
+
+@RestController
+@RequiredArgsConstructor
+@RequestMapping("/api/v1/auth")
+// For the Purpose of SpringDoc OpenAPI Swagger-UI
+//@Hidden
+public class AuthenticationController {
+
+    private final AuthenticationService authenticationService;
+
+    private int counter;
+
+    @GetMapping
+    public String warnsScam() {
+        counter++;
+        return String.format("<h1><strong style='color:red;'>STOP!:</strong><br>This is a browser feature intended for developers. " + counter + "</2>");
+    }
+
+    @PostMapping("/register")
+    public ResponseEntity<?> register(@Valid @RequestBody RegisterRequest registerRequest, HttpServletRequest httpRequest) {
+
+        authenticationService.register(registerRequest, httpRequest);
+
+        return ResponseEntity.ok().build();
+    }
+
+    /**
+     * <a href="http://hostname/api/v1/auth/account/confirm_email?token=eyJhbGciOiJ">...</a>
+     */
+    @GetMapping("/account/confirm_email")
+    public void confirmEmail(@RequestParam String token) {
+        authenticationService.confirmAccountViaEmail(token);
+    }
+
+    /**
+     * <a href="http://hostname/api/v1/auth/account/confirm_otp?otp=465758">...</a>
+     */
+    @GetMapping("/account/confirm_otp")
+    public void confirmOTP(@RequestParam String otp) {
+        authenticationService.confirmOTP(otp);
+    }
+
+    /*
+     * /api/v1/auth/resend/confirm_email?param=admin@gmail.com */
+    @PostMapping("/resend/confirm_email")
+    public ResponseEntity<String> resendConfirmMail(@RequestParam String email) {
+        authenticationService.resendConfirmationMail(email);
+
+        return ResponseEntity.ok().build();
+    }
+
+    @PostMapping("/login")
+    public ResponseEntity<JWTResponse> auth(@Valid @RequestBody AuthenticateRequest authenticateRequest, HttpServletRequest httpRequest) {
+
+        return ResponseEntity.ok(authenticationService.authenticate(authenticateRequest, httpRequest));
+    }
+
+    /*
+     * REFRESH_TOKEN is saved in the Database for reference CALL.
+     * So when ACCESS_TOKEN (JWT_Token) expires,
+     * REFRESH_TOKEN is used to get a new ACCESS_TOKEN.
+     * POST-REQUEST:: using REFRESH_TOKEN as Authorization 'Bearer Token'
+     * Obtain a NEW ACCESS_TOKEN*/
+    @PostMapping("/refresh/token")
+    public void refreshToken(HttpServletRequest request, HttpServletResponse response) throws IOException {
+        // Client/User IP Utils.getClientIp(httpRequest);
+
+        authenticationService.refreshToken(request, response);
+    }
+
+    /*
+     * @Param: user email/ip/phoneNumber
+     * /api/v1/auth/user_exist?param=192.168.8.1
+     * /api/v1/auth/user_exist?param=233241050915
+     * /api/v1/auth/user_exist?param=admin@gmail.com
+     * */
+    @PostMapping("/user_exist")
+    public ResponseEntity<Boolean> userExist(@RequestParam String param) {
+
+        return ResponseEntity.ok(authenticationService.userExists(param));
+    }
+
+    /*
+     * @id: user email/ip/phoneNumber
+     * @otp: OTP-CODE from UI
+     * /api/v1/auth/forgot_password?id=192.168.8.1&otp=65423
+     * /api/v1/auth/forgot_password?id=233241050915&otp=65423
+     * /api/v1/auth/forgot_password?id=admin@gmail.com&otp=65423 */
+    @PostMapping("/forgot_password")
+    public ResponseEntity<?> forgotPassword(@RequestParam String email, @RequestParam String otp) {
+
+        authenticationService.forgotPassword(email, otp);
+
+        return ResponseEntity.ok().build();
+    }
+
+}

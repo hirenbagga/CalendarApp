@@ -8,7 +8,7 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
 @RestController
-@RequestMapping("/timers")
+@RequestMapping("/api/v1/timers")
 @Tag(name = "Timer Management")
 public class TimerController {
 

@@ -1,9 +1,14 @@
 package com.hask.hasktask.config;
 
 import io.swagger.v3.oas.annotations.OpenAPIDefinition;
+import io.swagger.v3.oas.annotations.enums.SecuritySchemeIn;
+import io.swagger.v3.oas.annotations.enums.SecuritySchemeType;
 import io.swagger.v3.oas.annotations.info.Contact;
 import io.swagger.v3.oas.annotations.info.Info;
 import io.swagger.v3.oas.annotations.info.License;
+import io.swagger.v3.oas.annotations.security.SecurityRequirement;
+import io.swagger.v3.oas.annotations.security.SecurityScheme;
+
 /** import io.swagger.v3.oas.annotations.enums.SecuritySchemeIn;
 import io.swagger.v3.oas.annotations.enums.SecuritySchemeType;
 import io.swagger.v3.oas.annotations.security.SecurityRequirement;
@@ -30,8 +35,13 @@ import io.swagger.v3.oas.annotations.security.SecurityScheme;*/
                         name = "Developers API License",
                         url = "hask.com/license"
                 )
-        )
-        /** , servers = {
+        ),
+        security = {
+                @SecurityRequirement(
+                        name = "bearerAuth"
+                )
+        }
+        /* , servers = {
                 @Server(
                         description = "Local Environment - Dev Mode",
                         url = "http://localhost:8080"
@@ -44,19 +54,15 @@ import io.swagger.v3.oas.annotations.security.SecurityScheme;*/
                         description = "Production Environment - AWS Mode: DNS",
                         url = "ec2-54-144-244-111.compute-1.amazonaws.com" // replace with AWS instance
                 )
-        },
-        security = {
-                @SecurityRequirement(
-                        name = "bearerAuth"
-                )
-        }*/
+        },*/
 )
-/** @SecurityScheme(
+
+@SecurityScheme(
         name = "bearerAuth",
         description = "JWT Authorization Token",
         scheme = "bearer",
         type = SecuritySchemeType.HTTP,
         bearerFormat = "JWT",
         in = SecuritySchemeIn.HEADER
-)*/
+)
 public class OpenAPIConfig { }

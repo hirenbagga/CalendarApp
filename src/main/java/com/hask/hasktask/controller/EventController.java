@@ -2,6 +2,7 @@ package com.hask.hasktask.controller;
 
 import com.hask.hasktask.model.Event;
 import com.hask.hasktask.service.EventService;
+import com.hask.hasktask.service.KafkaProducerService;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
@@ -10,21 +11,22 @@ import org.springframework.web.bind.annotation.*;
 import java.util.List;
 
 @RestController
-@RequestMapping("/events")
+@RequestMapping("/api/v1/events")
 @Tag(name = "Event Management")
 public class EventController {
 
     final private EventService eventService;
-    // final private KafkaProducerService kafkaProducerService;
+    final private KafkaProducerService kafkaProducerService;
 
-    public EventController(EventService eventService) {
+    public EventController(EventService eventService, KafkaProducerService kafkaProducerService) {
         this.eventService = eventService;
+        this.kafkaProducerService = kafkaProducerService;
     }
 
-    @PostMapping("/")
-    public ResponseEntity<?> createEvent(@RequestBody Event event) {
-        /*event =*/ eventService.createEvent(event); // Save event to the database
-        // kafkaProducerService.sendEventCreatedEvent(event.getEventId(), event.getEventName());  // Trigger Kafka event for event creation
+    @PostMapping
+    public ResponseEntity<?> createEvent(@RequestBody Event body) {
+        var event = eventService.createEvent(body); // Save event to the database
+        kafkaProducerService.sendEventCreatedEvent(event.getEventId(), event.getEventName());  // Trigger Kafka event for event creation
         return ResponseEntity.status(HttpStatus.CREATED).build();
     }
 
@@ -32,7 +34,7 @@ public class EventController {
     @DeleteMapping("/{eventId}")
     public ResponseEntity<Void> deleteEvent(@PathVariable Long eventId) {
         eventService.deleteEvent(eventId); // Delete event from the database
-        // kafkaProducerService.sendEventDeletedEvent(eventId);  // Trigger Kafka event for event deletion
+        kafkaProducerService.sendEventDeletedEvent(eventId);  // Trigger Kafka event for event deletion
         return ResponseEntity.noContent().build();
     }
 

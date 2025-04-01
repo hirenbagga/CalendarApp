@@ -1,0 +1,13 @@
+# Spring Application Properties
+spring:
+  application:
+    name: Hask Task
+
+  # Spring Profiles
+  profiles:
+    active: dev
+
+
+
+
+

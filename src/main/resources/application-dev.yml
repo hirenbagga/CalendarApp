@@ -1,0 +1,119 @@
+# Spring Application Properties
+spring:
+  # Spring Data Source Config
+  datasource:
+    url: jdbc:postgresql://localhost:5432/hask_task
+    # url: jdbc:postgresql://database-2.ccg66chzdfr3.us-east-2.rds.amazonaws.com:5432/auto_mobiles
+    username: postgres
+    password: postgres1
+    driver-class-name: org.postgresql.Driver
+    name: hask_task
+
+  jpa:
+    hibernate:
+      ddl-auto: update
+    #show-sql: true
+    properties:
+      hibernate:
+        format_sql: true
+    database: postgresql
+    database-platform: org.hibernate.dialect.PostgreSQLDialect
+
+  # For Apache Kafka
+  kafka:
+    bootstrap-servers: localhost:9092  # Address of your Kafka broker
+    consumer:
+      group-id: task-consumer-group    # Consumer group for this app
+      auto-offset-reset: earliest      # Read from the earliest message if no offset exists
+      key-deserializer: org.apache.kafka.common.serialization.StringDeserializer
+      value-deserializer: org.apache.kafka.common.serialization.StringDeserializer
+    #      value-deserializer: org.springframework.kafka.support.serializer.JsonDeserializer
+    producer:
+      key-serializer: org.apache.kafka.common.serialization.StringSerializer
+      value-serializer: org.apache.kafka.common.serialization.StringSerializer
+  #      value-serializer: org.springframework.kafka.support.serializer.JsonSerializer
+
+
+  # Spring Mail Config
+  mail:
+    host: smtp.gmail.com
+    port: 587
+    username: devmail026@gmail.com
+    password: xpadoeylemcxgjjp # Generated Google App password
+    properties:
+      mail:
+        smtp:
+          auth: true
+          starttls:
+            enable: true
+          connectionTimeout: 5000
+          timeout: 3000
+          writeTimeout: 5000
+
+
+# API PROPERTIES
+haskTask:
+  app:
+    topics:
+      # Event Topic Name for Kafka
+      eventTopic: event-topic
+      taskTopic: task-topic
+    # 1 DAY / 24 HOURS = 86400000
+    # 7 DAYS / 168 HOURS = 604800000
+    jwtExpirationMs: 604800000
+
+    # 7 DAYS / 168 HOURS = 604800000
+    # 365 DAY / 1 YEAR = 31536000000
+    refreshExpirationMs: 31536000000
+
+    # 10 MINUTES = 600000
+    emailVerifyExpirationMs: 600000
+
+    # Change to Remote host in Production
+    hostName: " http://localhost:8080/api/v1/auth"
+
+    # Random 256 bit 32 Byte Hex (HS256) Key
+    jwtSecret: 8e435e4f2a530f331a64948e38cd4e063ddac96447c52011f611b4c8d853ea9e
+
+
+# Display SpringDoc Swagger-Ui OpenAPI endpoint
+springdoc:
+  # Display spring-boot-actuator endpoints in SpringDoc Swagger-Ui
+  show-actuator: true
+  swagger-ui:
+    # Display Swagger-Ui at the root endpoint
+    defaultModelsExpandDepth: -1
+    enabled: true
+  api-docs:
+    enabled: true
+
+
+# Actuator Endpoints
+management:
+  server:
+    port: 8181 # Changed Actuator Port from '8080' to '8181'
+  endpoints:
+    web:
+      exposure:
+        include: "*"
+
+
+# Write logs into library-api-steve.log file
+logging:
+  file:
+    name: api_logs/hask-task-api.log
+  pattern:
+    file: "%clr(%d{yyyy-MM-dd HH:mm:ss.SSS}){faint} %clr(%5p) %clr(${PID}){magenta} %clr(---){faint} %clr([%15.15t]){faint} %clr(%-40.40logger{39}){cyan} %clr(:){faint} %m%n%wEx"
+  logback:
+    rollingPolicy:
+      max-history: 5
+      max-file-size: 10MB
+
+
+# App Port is '8080'
+server:
+  port: 8080
+
+
+
+

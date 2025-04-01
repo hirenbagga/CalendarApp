@@ -3,13 +3,14 @@
 ## Table of Contents
 
 - [Introduction](#introduction)
+- [Possible Architectures](#possible-architectures)
 - [Getting Started](#getting-started)
 - [API Endpoints](#api-endpoints)
-  - [Create Task](#create-task)
-  - [Get Task](#get-task)
-  - [Update Task](#update-task)
-  - [Delete Task](#delete-task)
-  - [Get Notifications](#get-notifications)
+    - [Create Task](#create-task)
+    - [Get Task](#get-task)
+    - [Update Task](#update-task)
+    - [Delete Task](#delete-task)
+    - [Get Notifications](#get-notifications)
 - [Authentication](#authentication)
 - [Kafka Integration](#kafka-integration)
 - [Error Handling](#error-handling)
@@ -18,53 +19,147 @@
 
 ## Introduction
 
-The Hask Task API allows you to manage tasks and notifications. You can create tasks, update them, and monitor their status through notifications. The API integrates with Kafka to receive event-driven messages related to task updates.
->[API Endpoints Documentation Link] (http://localhost:8080/swagger-ui/index.html)
+The Hask Task API allows you to manage tasks and notifications. You can create tasks, update them, and monitor their
+status through notifications. The API integrates with Kafka to receive event-driven messages related to task updates.
+> [API Endpoints Documentation Link] (http://localhost:8181/swagger-ui/index.html)
 
 ```markdown
+# Modular Design for Scalability:
+
+This structure follows best practices for modular design and separation of concerns,
+allowing your backend and frontend to scale efficiently as the project grows.
+Each component is encapsulated in its own package or directory, making the codebase
+easier to maintain, extend, and test.
+
 src
 └── main
-├── java
-│    └── com
-│         └── hasktask
-│              ├── controller
-│              │    ├── EventController.java
-│              │    ├── TaskController.java
-│              │    ├── NotificationController.java
-│              │    └── TimerController.java
-│              ├── service
-│              │    ├── EventService.java
-│              │    ├── TaskService.java
-│              │    ├── NotificationService.java
-│              │    └── TimerService.java
-│              ├── model
-│              │    ├── Event.java
-│              │    ├── Task.java
-│              │    ├── Notification.java
-│              │    └── Timer.java
-│              ├── repository
-│              │    ├── EventRepository.java
-│              │    ├── TaskRepository.java
-│              │    ├── NotificationRepository.java
-│              │    └── TimerRepository.java
-│              └── config
-│                   └── KafkaConfig.java
-|                   └── OpenAPIConfig.java
-│
+└───|         
 ├── resources
-│    └── application.properties
-│    └── kafka-config.properties
+│ └── application.properties
+│ └── kafka-config.properties
+│
+java
+└── com
+└── hask
+└── hasktask
+│
+├── config # Configuration files (Security, Kafka, etc.)
+│
+│ ├── ApplicationConfig.java # General application configurations
+│ ├── JwtAuthenticationFilter.java # JWT Authentication filter
+│ ├── KafkaConfig.java # Kafka producer/consumer configurations
+│ ├── OpenAPIConfig.java # OpenAPI (Swagger) configurations
+│ ├── SecurityConfig.java # Security configurations (Spring Security, CORS, etc.)
+│ └── services # Helper services (JWT, logout, etc.)
+│ ├── JWTService.java # Handles JWT token generation/validation
+│ └── LogoutService.java # Handles user logout
+│
+├── controller # REST Controllers (API endpoints)
+│ ├── AuthenticationController.java # Handles login, registration, etc.
+│ ├── EventController.java # Manages event-related API calls
+│ ├── NotificationController.java # Manages notification API calls
+│ ├── TaskController.java # Manages task-related API calls
+│ ├── TimerController.java # Manages timer-related API calls
+│ └── UserController.java # Manages user-related API calls
+│
+├── model # Entities, DTOs, Request/Response objects
+│ ├── AccessToken.java # Model for access tokens
+│ ├── AuthenticateRequest.java # DTO for authentication request
+│ ├── EmailConfirmation.java # Email confirmation model
+│ ├── Event.java # Event entity/model
+│ ├── JWTResponse.java # JWT token response DTO
+│ ├── Notification.java # Notification entity/model
+│ ├── RefreshToken.java # Refresh token model
+│ ├── RegisterRequest.java # DTO for user registration
+│ ├── Timer.java # Timer entity/model
+│ ├── Task.java # Task entity/model
+│ └── User.java # User entity/model
+│
+├── service # Business logic and services
+│ ├── AccessTokenService.java # Handles access token-related logic
+│ ├── AuthenticationService.java # Handles authentication-related business logic
+│ ├── EmailConfirmationService.java # Handles email confirmation logic
+│ ├── EmailSenderService.java # Handles email sending logic
+│ ├── EventService.java # Handles event-related business logic
+│ ├── KafkaConsumer.java # Kafka consumer for event processing
+│ ├── KafkaProducerService.java # Kafka producer for event publishing
+│ ├── NotificationService.java # Handles notification sending logic
+│ ├── OTPService.java # Handles OTP logic for authentication
+│ ├── Permission.java # Handles permissions and roles
+│ ├── RefreshTokenService.java # Handles refresh token-related logic
+│ ├── Role.java # Handles roles/permissions logic
+│ ├── TaskService.java # Task-related business logic
+│ ├── TimerService.java # Timer-related business logic
+│ ├── TokenType.java # Defines token types (e.g., access, refresh)
+│ └── UserService.java # Handles user-related business logic
+│
+├── repository # JPA repositories for data access
+│ ├── AccessTokenRepository.java # Repository for AccessToken entity
+│ ├── EmailConfirmationRepository.java # Repository for email confirmation
+│ ├── EventRepository.java # Repository for Event entity
+│ ├── NotificationRepository.java # Repository for Notification entity
+│ ├── RefreshTokenRepository.java # Repository for RefreshToken entity
+│ ├── TaskRepository.java # Repository for Task entity
+│ ├── TimerRepository.java # Repository for Timer entity
+│ └── UserRepository.java # Repository for User entity
+│
+├── customException # Custom exceptions and handlers
+│ ├── CustomAccessDeniedHandler.java # Handles 403 (access denied) errors
+│ ├── CustomAccessDeniedHandler.java # Handles 403 (access denied) errors
+│ ├── CustomAuthenticationEntryPoint.java # Handles 401 (unauthorized) errors
+│ ├── CustomNotFound.java # Custom exception for 404 errors
+│ ├── EntityNotFoundException.java # Custom exception for entity not found
+│ ├── GeneralException.java # General exception handler
+│ ├── RestExceptionHandler.java # Global exception handler for REST APIs
+│ │
+│ └── apiError # Error handling and response models
+│ ├── ApiError.java # Generic API error response model
+│ ├── ApiSubError.java # Sub-error class for API errors
+│ └── ApiValidationError.java # Validation error handling
+│
+└── eventbus # Kafka/EventBus-related classes
+├── KafkaProducer.java # Kafka producer for event publishing
+├── KafkaConsumer.java # Kafka consumer for event processing
+└── EventMessage.java # Structure for event messages (for Kafka)
 
 # Hask Task API Documentation
 
-Welcome to the Hask Task API! This document serves as a guide for developers to understand how to interact with the API, the available endpoints, and how to use them effectively.
+Welcome to the Hask Task API! This document serves as a guide for developers to understand how to interact with the API,
+the available endpoints, and how to use them effectively.
 
 ````
+
+## Possible Architectures
+
+- **Client-Server Architecture:** The API follows a client-server architecture, where the client (frontend) interacts
+  with the server (backend) to perform various operations.
+- ![Screenshot 2025-04-01 at 10.24.23 AM.png](src/main/resources/static/Screenshot%202025-04-01%20at%2010.24.23%E2%80%AFAM.png)
+- **Event-Based Architecture:** The API integrates with Kafka to handle event-driven messages related to task updates
+  and notifications.
+- ![Screenshot 2025-04-01 at 10.22.54 AM.png](src/main/resources/static/Screenshot%202025-04-01%20at%2010.22.54%E2%80%AFAM.png)
+- **RESTful API Design:** The API is designed following RESTful principles, with endpoints for creating, updating, and
+  deleting tasks, as well as retrieving notifications.
+- **JWT Authentication:** The API uses JWT tokens for user authentication, ensuring secure access to the endpoints.
+- **Error Handling:** The API provides detailed error messages and status codes for different scenarios, making it
+  easier to debug and troubleshoot issues.
+- **Modular Design:** The API is structured in a modular way, with separate packages for controllers, services, models,
+  and repositories, making it easier to maintain and extend.
+- **Unit Testing:** The API includes unit tests for services and controllers, ensuring that the business logic is tested
+  and working as expected.
+- **Documentation:** The API documentation provides detailed information about the available endpoints, request/response
+  payloads, and authentication requirements.
+- **Scalability:** The API is designed to be scalable, allowing you to add new features, endpoints, or integrations as
+  needed.
+- **Security:** The API includes security features such as JWT authentication, role-based access control, and error
+  handling to protect against common security threats.
+- **Notifications:** The API includes functionality to send notifications to users based on task updates, providing
+  real-time updates and reminders.
+- **Configuration:** The API includes configuration files for Kafka, Spring Security, and other settings, making it easy
+  to customize and deploy in different environments.
 
 ## Getting Started
 
 1. Clone the repository:
-
 
 ```bash
 git clone https://github.com/your-repo/hask-task.git
@@ -76,16 +171,31 @@ git clone https://github.com/your-repo/hask-task.git
    cd hask-task
    ```
 
-3. Set up the application by providing the necessary configuration in the `application.properties` file:
+3. Kafka Configuration:
 
-    - `kafka.bootstrap.servers`: Kafka server URL.
-    - `kafka.consumer.group.id`: Kafka consumer group ID.
-
-   Example:
-   ```properties
-   kafka.bootstrap.servers=localhost:9092
-   kafka.consumer.group.id=task-group
-   ```
+    - Download and unzip Kafka from the [Apache Kafka website](https://kafka.apache.org/quickstart).
+    - Rename the unzip folder to `kafka_server`.
+    - Change directory(cd) into the `kafka_server` folder.
+      ```bash
+      cd kafka_server
+      ```
+        - Generate a Cluster UUID for the Kafka server:
+          ```bash
+          KAFKA_CLUSTER_ID="$(bin/kafka-storage.sh random-uuid)"
+          ```
+          - Format Log Directories for the Kafka server:
+            ```bash
+            bin/kafka-storage.sh format --standalone -t $KAFKA_CLUSTER_ID -c config/server.properties
+            ```
+          - Run the following command to start Kafka server:
+            ```bash
+            bin/kafka-server-start.sh config/server.properties
+            ```
+    - TO READ THE EVENTS: Open a new terminal. Then run the following command:
+        ```bash
+        bin/kafka-console-consumer.sh --topic hask-task-app --from-beginning --bootstrap-server localhost:9092
+        ```
+    - By default, Kafka server runs on `localhost:9092`.
 
 4. Install dependencies (if using Maven):
 
@@ -169,7 +279,8 @@ git clone https://github.com/your-repo/hask-task.git
 
 ## Authentication
 
-The API uses Spring Security to handle user authentication. The application requires a user to be authenticated before performing any operations. Ensure that the user is logged in using JWT or other authentication methods.
+The API uses Spring Security to handle user authentication. The application requires a user to be authenticated before
+performing any operations. Ensure that the user is logged in using JWT or other authentication methods.
 
 For JWT-based authentication, include the token in the `Authorization` header:
 
@@ -179,7 +290,8 @@ Authorization: Bearer {JWT_TOKEN}
 
 ## Kafka Integration
 
-The application uses Kafka for event-driven architecture. A Kafka consumer listens for events on the `task-events` topic. When a task is marked as completed, an event is produced and consumed by the API.
+The application uses Kafka for event-driven architecture. A Kafka consumer listens for events on the `task-events`
+topic. When a task is marked as completed, an event is produced and consumed by the API.
 
 ### Events:
 
@@ -217,7 +329,8 @@ Errors are returned in a standard format:
 
 ## Testing
 
-You can write unit tests for your services using JUnit. Tests should cover all business logic, including task creation, updates, and Kafka event handling.
+You can write unit tests for your services using JUnit. Tests should cover all business logic, including task creation,
+updates, and Kafka event handling.
 
 - **Unit Tests:** Located in the `src/test/java/com/hask/hasktask` directory.
 - **Test Example:**
@@ -235,7 +348,9 @@ This project is licensed under the MIT License - see the [LICENSE](LICENSE) file
 ---
 
 Feel free to modify this file based on your specific use case and project requirements.
+
 ```
+
 
 ### Notes:
 - You can adjust the endpoint descriptions, payloads, and authentication details based on your actual API structure.
