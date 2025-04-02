@@ -1,91 +1,81 @@
-import './App.css'
-import { ScheduleXCalendar, useCalendarApp } from "@schedule-x/react";
-import { createViewWeek, createViewMonthGrid } from '@schedule-x/calendar';
-import '@schedule-x/theme-default/dist/calendar.css';
-import { createEventModalPlugin } from '@schedule-x/event-modal';
-import { createDragAndDropPlugin } from '@schedule-x/drag-and-drop';
-import { createEventsServicePlugin } from '@schedule-x/events-service';
-import { useEffect, useState, useRef } from 'react';
 
-import * as React from 'react';
-import Container from '@mui/material/Container';
+import React from 'react';
+import { BrowserRouter as Router, Route, Routes, useNavigate, useLocation } from 'react-router-dom';
+import Timer from './Timer';
+import Clander from './clander';
+// import TodoList from './TodoList';
+import Login from './login/Login';
+import Register from './login/Register';
+import ForgotPassword from './login/ForgotPassword';
 import BottomNavigation from '@mui/material/BottomNavigation';
 import BottomNavigationAction from '@mui/material/BottomNavigationAction';
-import Button from '@mui/material/Button';
 import RestoreIcon from '@mui/icons-material/Restore';
 import FavoriteIcon from '@mui/icons-material/Favorite';
 import LocationOnIcon from '@mui/icons-material/LocationOn';
 
-function App() {
-  const [value, setValue] = useState(0);
-  const eventsService = useState(() => createEventsServicePlugin())[0];
+import TodoList from './TodoList2';
+// 创建一个带有底部导航的布局组件
+const Layout = () => {
+  const navigate = useNavigate();
+  const location = useLocation();
 
-  const calendar = useCalendarApp({
-    views: [
-      createViewWeek(),
-      createViewMonthGrid()
-    ],
-    events: [
-      {
-        id: 1,
-        title: 'My new event',
-        start: '2025-01-01 00:00',
-        end: '2025-01-01 02:00',
-        description: 'zoom.us/123456',
-        color: '#FF0000'
-      }
-    ],
-    selectedDate: '2025-01-01',
-    plugins: [
-      createEventModalPlugin(),
-      createDragAndDropPlugin(),
-      eventsService
-    ]
-  });
-
-  useEffect(() => {
-    eventsService.getAll();
-  }, []);
+  // 根据当前路径设置激活的导航项
+  const getNavValue = () => {
+    const path = location.pathname;
+    if (path === '/timer') return 0;
+    if (path === '/todolist') return 1;
+    if (path === '/clander') return 2;
+    return 0;
+  };
 
   return (
-    <>
-      <Container maxWidth="lg">
-        {/* Wrap the button and calendar together */}
-        <div style={{ position: 'relative' }}>
-          {/* Button placed inside calendar */}
-          <Button
-            variant="contained"
-            color="primary"
-            onClick={() => calendar.sidebar.openAddEvent()}
-            style={{
-              backgroundColor: "#F1F3F4",  // Matches existing UI color
-              color: "#000",               // Text color to match UI
-              fontWeight: "bold",
-              boxShadow: "none",
-              marginRight: "10px"          // Space between "Week" and "Add Event"
-            }}
-          >
-            ADD
-          </Button>
-
-
-          {/* Calendar */}
-          <ScheduleXCalendar calendarApp={calendar} />
-        </div>
-      </Container>
+    <div style={{ paddingBottom: '56px' }}>
+      <Routes>
+        <Route path="/clander" element={<Clander />} />
+        <Route path="/" element={<Clander />} />
+        <Route path="/timer" element={<Timer />} />
+        {/* <Route path="/todolist" element={<FormAccordionList />} /> */}
+        <Route path="/todolist" element={<TodoList />} />
+        <Route path="/register" element={<Register />} />
+        <Route path="/login" element={<Login />} />
+        <Route path="/forgotpassword" element={<ForgotPassword />} />
+        {/* <Route path="/forgotpassword" element={<ForgotPassword />} /> */}
+      </Routes>
 
       <BottomNavigation
         showLabels
-        value={value}
-        onChange={(event, newValue) => setValue(newValue)}
-        sx={{ position: 'fixed', bottom: 0, width: '100%' }}
+        value={getNavValue()}
+        onChange={(_, newValue) => {
+          switch (newValue) {
+            case 0:
+              navigate('/timer');
+              break;
+            case 1:
+              navigate('/todolist');
+              break;
+            case 2:
+              navigate('/clander');
+              break;
+            default:
+              navigate('/');
+          }
+        }}
+        sx={{ position: 'fixed', bottom: 0, width: '100%', zIndex: 1000, boxShadow: '0 -2px 10px rgba(0, 0, 0, 0.1)' }}
       >
-        <BottomNavigationAction label="Recents" icon={<RestoreIcon />} />
-        <BottomNavigationAction label="Favorites" icon={<FavoriteIcon />} />
-        <BottomNavigationAction label="Nearby" icon={<LocationOnIcon />} />
+        <BottomNavigationAction label="Timer" icon={<RestoreIcon />} />
+        <BottomNavigationAction label="Todo List" icon={<FavoriteIcon />} />
+        <BottomNavigationAction label="Calendar" icon={<LocationOnIcon />} />
       </BottomNavigation>
-    </>
+    </div>
   );
-}
+};
+
+const App: React.FC = () => {
+  return (
+    <Router>
+      <Layout />
+    </Router>
+  );
+};
 
 export default App;
