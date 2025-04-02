@@ -1,6 +1,6 @@
 
 import React from 'react';
-import { BrowserRouter as Router, Route, Routes, useNavigate, useLocation } from 'react-router-dom';
+import { HashRouter as Router, Route, Routes, useNavigate, useLocation } from 'react-router-dom';
 import Timer from './Timer';
 import Clander from './clander';
 // import TodoList from './TodoList';
