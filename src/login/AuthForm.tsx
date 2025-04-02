@@ -1,6 +1,8 @@
 import { useState } from "react";
 // import { useNavigate } from "react-router-dom";
-import { Typography, Link } from "@mui/material";
+import { Typography } from "@mui/material";
+// import { Link } from "react-router-dom";
+import { Link } from "react-router";
 interface AuthFormProps {
     title: string;
     fields: { name: string; type: string; placeholder: string }[];
@@ -69,18 +71,24 @@ const AuthForm = ({ title, fields, buttonText, onSubmit }: AuthFormProps) => {
               <span className="mr-1">←</span> 返回首页
             </button> */}
                         <Typography variant="body2" sx={{ mt: 2 }}>
-                            <Link href="/register" underline="hover">
+                            <Link
+                                to="/register"
+                                className="text-purple-600 hover:text-purple-800 mx-1"
+                            >
                                 Sign Up
                             </Link>
                             {" | "}
-                            <Link href="/forgotpassword" underline="hover">
+                            <Link
+                                to="/forgotpassword"
+                                className="text-purple-600 hover:text-purple-800 mx-1"
+                            >
                                 Forgot Password?
                             </Link>
                         </Typography>
                     </div>
                 </div>
             </div>
-        </div>
+        </div >
     );
 };
 
