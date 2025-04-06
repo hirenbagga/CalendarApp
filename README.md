@@ -33,95 +33,98 @@ Each component is encapsulated in its own package or directory, making the codeb
 easier to maintain, extend, and test.
 
 src
-└── main
-└───|         
+├── main
+│         
 ├── resources
-│ └── application.properties
-│ └── kafka-config.properties
+│ ├── application.yml # Main application configuration
+│ │     └── application-dev.yml # Development environment configuration
+│ └── template
 │
 java
-└── com
-└── hask
-└── hasktask
-│
-├── config # Configuration files (Security, Kafka, etc.)
-│
-│ ├── ApplicationConfig.java # General application configurations
-│ ├── JwtAuthenticationFilter.java # JWT Authentication filter
-│ ├── KafkaConfig.java # Kafka producer/consumer configurations
-│ ├── OpenAPIConfig.java # OpenAPI (Swagger) configurations
-│ ├── SecurityConfig.java # Security configurations (Spring Security, CORS, etc.)
-│ └── services # Helper services (JWT, logout, etc.)
-│ ├── JWTService.java # Handles JWT token generation/validation
-│ └── LogoutService.java # Handles user logout
-│
-├── controller # REST Controllers (API endpoints)
-│ ├── AuthenticationController.java # Handles login, registration, etc.
-│ ├── EventController.java # Manages event-related API calls
-│ ├── NotificationController.java # Manages steveNotification API calls
-│ ├── TaskController.java # Manages task-related API calls
-│ ├── TimerController.java # Manages timer-related API calls
-│ └── UserController.java # Manages user-related API calls
-│
-├── model # Entities, DTOs, Request/Response objects
-│ ├── AccessToken.java # Model for access tokens
-│ ├── AuthenticateRequest.java # DTO for authentication request
-│ ├── EmailConfirmation.java # Email confirmation model
-│ ├── Event.java # Event entity/model
-│ ├── JWTResponse.java # JWT token response DTO
-│ ├── Notification.java # Notification entity/model
-│ ├── RefreshToken.java # Refresh token model
-│ ├── RegisterRequest.java # DTO for user registration
-│ ├── Timer.java # Timer entity/model
-│ ├── Task.java # Task entity/model
-│ └── User.java # User entity/model
-│
-├── service # Business logic and services
-│ ├── AccessTokenService.java # Handles access token-related logic
-│ ├── AuthenticationService.java # Handles authentication-related business logic
-│ ├── EmailConfirmationService.java # Handles email confirmation logic
-│ ├── EmailSenderService.java # Handles email sending logic
-│ ├── EventService.java # Handles event-related business logic
-│ ├── KafkaConsumer.java # Kafka consumer for event processing
-│ ├── KafkaProducerService.java # Kafka producer for event publishing
-│ ├── NotificationService.java # Handles steveNotification sending logic
-│ ├── OTPService.java # Handles OTP logic for authentication
-│ ├── Permission.java # Handles permissions and roles
-│ ├── RefreshTokenService.java # Handles refresh token-related logic
-│ ├── Role.java # Handles roles/permissions logic
-│ ├── TaskService.java # Task-related business logic
-│ ├── TimerService.java # Timer-related business logic
-│ ├── TokenType.java # Defines token types (e.g., access, refresh)
-│ └── UserService.java # Handles user-related business logic
-│
-├── repository # JPA repositories for data access
-│ ├── AccessTokenRepository.java # Repository for AccessToken entity
-│ ├── EmailConfirmationRepository.java # Repository for email confirmation
-│ ├── EventRepository.java # Repository for Event entity
-│ ├── NotificationRepository.java # Repository for Notification entity
-│ ├── RefreshTokenRepository.java # Repository for RefreshToken entity
-│ ├── TaskRepository.java # Repository for Task entity
-│ ├── TimerRepository.java # Repository for Timer entity
-│ └── UserRepository.java # Repository for User entity
-│
-├── customException # Custom exceptions and handlers
-│ ├── CustomAccessDeniedHandler.java # Handles 403 (access denied) errors
-│ ├── CustomAccessDeniedHandler.java # Handles 403 (access denied) errors
-│ ├── CustomAuthenticationEntryPoint.java # Handles 401 (unauthorized) errors
-│ ├── CustomNotFound.java # Custom exception for 404 errors
-│ ├── EntityNotFoundException.java # Custom exception for entity not found
-│ ├── GeneralException.java # General exception handler
-│ ├── RestExceptionHandler.java # Global exception handler for REST APIs
-│ │
-│ └── apiError # Error handling and response models
-│ ├── ApiError.java # Generic API error response model
-│ ├── ApiSubError.java # Sub-error class for API errors
-│ └── ApiValidationError.java # Validation error handling
-│
-└── eventbus # Kafka/EventBus-related classes
-├── KafkaProducer.java # Kafka producer for event publishing
-├── KafkaConsumer.java # Kafka consumer for event processing
-└── EventMessage.java # Structure for event messages (for Kafka)
+├── com
+│   └── hask
+│      └── hasktask
+            │
+            ├── config # Configuration files (Security, Kafka, etc.)
+            │       │
+            │       ├── ApplicationConfig.java # General application configurations
+            │       ├── JwtAuthenticationFilter.java # JWT Authentication filter
+            │       ├── KafkaConfig.java # Kafka producer/consumer configurations
+            │       ├── OpenAPIConfig.java # OpenAPI (Swagger) configurations
+            │       ├── SecurityConfig.java # Security configurations (Spring Security, CORS, etc.)
+            │       └── services # Helper services (JWT, logout, etc.)
+            │           ├── <JWTServ>     </JWTServ>ice.java # Handles JWT token generation/validation
+            │           └── LogoutService.java # Handles user logout
+            │
+            ├── controller # REST Controllers (API endpoints)
+            │       ├── AuthenticationController.java # Handles login, registration, etc.
+            │       ├── EventController.java # Manages event-related API calls
+            │       ├── TaskController.java # Manages task-related API calls
+            │       ├── TimerController.java # Manages timer-related API calls
+            │       └── UserController.java # Manages user-related API calls
+            │
+            ├── model # Entities, DTOs, Request/Response objects
+            │       ├── AccessToken.java # Model for access tokens
+            │       ├── AuthenticateRequest.java # DTO for authentication request
+            │       ├── EmailConfirmation.java # Email confirmation model
+            │       ├── ChangePasswordRequest.java # DTO for password change request
+            │       ├── Event.java # Event entity/model
+            │       ├── JWTResponse.java # JWT token response DTO
+            │       ├── VerificationToken.java # Model for verification tokens
+            │       ├── RefreshToken.java # Refresh token model
+            │       ├── RegisterRequest.java # DTO for user registration
+            │       ├── Timer.java # Timer entity/model
+            │       ├── Task.java # Task entity/model
+            │       └── User.java # User entity/model
+            │
+            ├── service # Business logic and services
+            │       ├── AccessTokenService.java # Handles access token-related logic
+            │       ├── AuthenticationService.java # Handles authentication-related business logic
+            │       ├── VerificationTokenService.java # Handles email confirmation logic
+            │       ├── EventService.java # Handles event-related business logic
+            │       ├── KafkaConsumer.java # Kafka consumer for event processing
+            │       ├── EventDueReminder.java # Handles event due reminders
+            │       ├── TaskDueReminder.java # Handles task due reminders
+            │       ├── NotificationService.java # Handles steveNotification sending logic
+            │       ├── RefreshTokenService.java # Handles refresh token-related logic
+            │       ├── Role.java # Handles roles/permissions logic
+            │       ├── TaskService.java # Task-related business logic
+            │       ├── TimerService.java # Timer-related business logic
+            │       ├── TokenType.java # Defines token types (e.g., access, refresh)
+            │       └── UserService.java # Handles user-related business logic
+            │
+            ├── repository # JPA repositories for data access
+            │       ├── AccessTokenRepository.java # Repository for AccessToken entity
+            │       ├── EventRepository.java # Repository for Event entity
+            │       ├── VerificationTokenRepository.java # Repository for verification tokens
+            │       ├── RefreshTokenRepository.java # Repository for RefreshToken entity
+            │       ├── TaskRepository.java # Repository for Task entity
+            │       ├── TimerRepository.java # Repository for Timer entity
+            │       └── UserRepository.java # Repository for User entity
+            │
+            ├── customException # Custom exceptions and handlers
+            │       ├── CustomAccessDeniedHandler.java # Handles 403 (access denied) errors
+            │       ├── CustomAccessDeniedHandler.java # Handles 403 (access denied) errors
+            │       ├── CustomAuthenticationEntryPoint.java # Handles 401 (unauthorized) errors
+            │       ├── CustomNotFound.java # Custom exception for 404 errors
+            │       ├── EntityNotFoundException.java # Custom exception for entity not found
+            │       ├── GeneralException.java # General exception handler
+            │       ├── RestExceptionHandler.java # Global exception handler for REST APIs
+            │       │
+            │       └── apiError # Error handling and response models
+            │               ├── ApiError.java # Generic API error response model
+            │               ├── ApiErrorResponse.java # API error response structure
+            │               └── ApiValidationError.java # Validation error handling
+            │
+            ├── event # Kafka event Producers 
+            │       ├── AccountProducer.java # User Account producer for event publishing
+            │       ├── EventProducer.java # Calender Event producer for event publishing
+            │       └── TaskProducer.java # Calender Task producer for event publishing
+            │
+            └── listener # Kafka Event Consumers/Listeners
+                    ├── AccountConsumer.java # User Account consumer for event subscription
+                    ├── EventConsumer.java # Calender Event consumer for event subscription
+                    └── TaskConsumer.java # Calender Task consumer for event subscription
 
 # Hask Task API Documentation
 
