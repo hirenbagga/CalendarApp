@@ -46,7 +46,11 @@ public class Event {
             "createdAt",
             "updatedAt",
             "username",
-    }) // Hide these fields from the JSON response
+            "firstName",
+            "lastName",
+            "email",
+            "phone"
+    }) // Ignore these fields from the JSON response
     private User user;
 
 }

@@ -41,11 +41,11 @@ public class Task {
             "createdAt",
             "updatedAt",
             "username",
-            "firstName", // Ignore firstName for POST
-            "lastName",  // Ignore lastName for POST
-            "email",     // Ignore email for POST
-            "phone"      // Ignore phone for POST
-    }) // Hide these fields from the JSON response
+            "firstName",
+            "lastName",
+            "email",
+            "phone"
+    }) // Ignore these fields from the JSON response
     private User user;
 
 }
