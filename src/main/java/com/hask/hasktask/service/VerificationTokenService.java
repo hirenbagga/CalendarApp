@@ -67,8 +67,7 @@ public class VerificationTokenService {
         // Return a map with token, OTP, and email
         return Map.of(
                 "otp", otp,
-                "token", token,
-                "email", user.getEmail()
+                "token", token
         );
     }
 

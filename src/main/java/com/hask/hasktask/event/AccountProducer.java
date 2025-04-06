@@ -18,7 +18,7 @@ public class AccountProducer {
 
     // GENERIC METHOD TO SEND EVENTS TO KAFKA TOPICS
     private void sendEvent(String topic, String eventType, String toEmail, String token, String otp) {
-        String message = buildAccountMessage(eventType, toEmail, token, otp);
+        String message = buildAccountMessage(eventType, token, otp, toEmail);
         kafkaTemplate.send(topic, message);
         System.out.println("Sent Kafka message: " + message);
     }

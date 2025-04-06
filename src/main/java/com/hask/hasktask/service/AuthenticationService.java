@@ -59,9 +59,9 @@ public class AuthenticationService {
         var verify = verificationTokenService.saveEmailVerification(user);
 
         return new VerificationDetails(
-                verify.get("otp").toString(),
                 verify.get("token").toString(),
-                verify.get("email").toString(),
+                verify.get("otp").toString(),
+                userEmail,
                 "ACC_CREATED"
         );
     }
@@ -83,9 +83,9 @@ public class AuthenticationService {
         var verify = verificationTokenService.saveEmailVerification(user);
 
         return new VerificationDetails(
-                verify.get("otp").toString(),
                 verify.get("token").toString(),
-                verify.get("email").toString(),
+                verify.get("otp").toString(),
+                email,
                 "ACC_RESEND"
         );
     }
@@ -231,9 +231,9 @@ public class AuthenticationService {
         var verify = verificationTokenService.saveEmailVerification(user);
 
         return new VerificationDetails(
-                verify.get("otp").toString(),
                 verify.get("token").toString(),
-                verify.get("email").toString(),
+                verify.get("otp").toString(),
+                email,
                 "ACC_FORGOT"
         );
     }

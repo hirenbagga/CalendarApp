@@ -46,7 +46,7 @@ public class NotificationService {
 
     public void sendVerifyAccountNotification(String token, String otp, String toEmail) {
         var verificationUrl = baseUrl+apiEndpoint + "/account/confirm_email?token=" + token;
-        var subject = "Hask Task Planner: Verify Your Account!";
+        var subject = "📩 Hask Task Planner: Verify Your Account!";
         var body = "Welcome!\n\n"
                 + "Your OTP code is: " + otp + "\n"
                 + "Alternatively, Click the link below to verify your account:\n\t"

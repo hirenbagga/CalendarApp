@@ -2,7 +2,6 @@ package com.hask.hasktask.listener;
 
 import com.hask.hasktask.model.VerificationDetails;
 import com.hask.hasktask.service.NotificationService;
-import com.hask.hasktask.service.TaskService;
 import org.apache.kafka.clients.consumer.ConsumerRecord;
 import org.springframework.kafka.annotation.EnableKafka;
 import org.springframework.kafka.annotation.KafkaListener;
@@ -20,7 +19,7 @@ public class AccountConsumer {
 
     // Kafka listener for account events (e.g., ACC_CREATED, ACC_VERIFICATION, ACC_FORGOT)
     @KafkaListener(topics = "${haskTask.app.topics.accountTopic}", groupId = "account-consumer-group")
-    public void listenTaskEvents(ConsumerRecord<String, String> record) {
+    public void listenAccountEvents(ConsumerRecord<String, String> record) {
         String message = record.value();
         processAccountMessage(message);
     }
@@ -54,7 +53,7 @@ public class AccountConsumer {
         String[] parts = msg.split(",");
         if (parts.length < 2) return null; // Invalid message format
 
-        String email = getPart(parts, 0);
+        String email = parts[0].split("=")[1];
         String token = getPart(parts, 1);
         String otp = getPart(parts, 2);
 
