@@ -46,6 +46,8 @@ public class SecurityConfig {
             "/configuration/ui/**",
             "/swagger-resources/security",
             "/webjars/**",
+            // Actuator Endpoints
+            "/actuator/**",
     };
 
     // JWT Token Required for Accessing these Endpoints

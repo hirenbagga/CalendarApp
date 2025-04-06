@@ -220,9 +220,9 @@ public class AuthenticationService {
                 );
     }
 
-    public VerificationDetails forgotPassword(String email, String otp) {
+    public VerificationDetails forgotPassword(String email) {
         var user = findUserByEmail(email);
-        if (!user.isEnabled() || otp.isEmpty()) {
+        if (!user.isEnabled()) {
             throw new GeneralException(email, "User email invalid");
         }
 

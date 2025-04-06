@@ -100,7 +100,7 @@ management:
   endpoints:
     web:
       exposure:
-        include: "*"
+        include: health,info,scheduledtasks
 
 
 # Write logs into library-api-steve.log file

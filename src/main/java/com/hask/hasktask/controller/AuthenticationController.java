@@ -7,6 +7,7 @@ import com.hask.hasktask.model.RegisterRequest;
 import com.hask.hasktask.model.VerificationDetails;
 import com.hask.hasktask.service.AuthenticationService;
 //import io.swagger.v3.oas.annotations.Hidden;
+import io.swagger.v3.oas.annotations.tags.Tag;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
 import jakarta.validation.Valid;
@@ -21,6 +22,7 @@ import java.io.IOException;
 @RestController
 @RequiredArgsConstructor
 @RequestMapping("/api/v1/auth")
+@Tag(name = "Auth Management")
 public class AuthenticationController {
 
     private final AuthenticationService authenticationService;
@@ -104,15 +106,11 @@ public class AuthenticationController {
     }
 
     /*
-     * @id: user email/ip/phoneNumber
-     * @otp: OTP-CODE from UI
-     * /api/v1/auth/forgot_password?id=192.168.8.1&otp=65423
-     * /api/v1/auth/forgot_password?id=233241050915&otp=65423
-     * /api/v1/auth/forgot_password?id=admin@gmail.com&otp=65423 */
+     * /api/v1/auth/forgot_password?email=admin@gmail.com */
     @PostMapping("/forgot_password")
-    public ResponseEntity<?> forgotPassword(@RequestParam String email, @RequestParam String otp) {
+    public ResponseEntity<?> forgotPassword(@RequestParam String email) {
 
-        VerificationDetails details = authenticationService.forgotPassword(email, otp);
+        VerificationDetails details = authenticationService.forgotPassword(email);
 
         // Trigger Kafka event for forgot password creation
         accountProducer.sendForgotPasswordEvent(details.token(), details.otp(), details.toEmail());

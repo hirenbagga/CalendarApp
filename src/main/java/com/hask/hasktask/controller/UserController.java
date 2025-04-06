@@ -3,6 +3,7 @@ package com.hask.hasktask.controller;
 import com.hask.hasktask.model.ChangePasswordRequest;
 import com.hask.hasktask.model.User;
 import com.hask.hasktask.service.UserService;
+import io.swagger.v3.oas.annotations.tags.Tag;
 import lombok.RequiredArgsConstructor;
 import org.springdoc.core.annotations.ParameterObject;
 import org.springframework.cache.annotation.CacheConfig;
@@ -18,6 +19,7 @@ import java.util.List;
 @CacheConfig(cacheNames = "users")
 @RequiredArgsConstructor
 @RequestMapping("/api/v1/users")
+@Tag(name = "User Management")
 public class UserController {
     /*
      * Security Flow: The Frontend (UI) sends an AccessToken with the request.

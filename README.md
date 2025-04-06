@@ -22,7 +22,7 @@
 The Hask Task API allows you to manage tasks and notifications. You can create tasks, update them, and monitor their
 status through notifications. The API integrates with Kafka to receive event-driven messages related to task updates.
 > [API Endpoints Documentation Link] (http://localhost:8080/swagger-ui/index.html)
-> [API Endpoints Documentation Link] (http://localhost:8181/swagger-ui/index.html)
+> [IF SERVER IS UP OR DOWN] (http://localhost:8181/actuator/health)
 
 ```markdown
 # Modular Design for Scalability:
