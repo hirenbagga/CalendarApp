@@ -1,6 +1,7 @@
 package com.hask.hasktask.service;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
+import com.hask.hasktask.config.Role;
 import com.hask.hasktask.config.service.JWTService;
 import com.hask.hasktask.customException.EntityNotFoundException;
 import com.hask.hasktask.customException.GeneralException;
@@ -16,10 +17,9 @@ import org.springframework.stereotype.Service;
 import org.springframework.util.StringUtils;
 
 import java.io.IOException;
-import java.util.regex.Pattern;
 
-@RequiredArgsConstructor
 @Service
+@RequiredArgsConstructor
 public class AuthenticationService {
 
     private final JWTService jwtService;
@@ -28,28 +28,21 @@ public class AuthenticationService {
     private final RefreshTokenService refreshTokenService;
     private final PasswordEncoder passwordEncoder;
     private final AuthenticationManager authenticationManager;
-    private final EmailConfirmationService emailConfirmationService;
-    // private final SMSConfirmationService smsConfirmationService;
-    // private final FindUserByEmailOrPhoneOrIpAddress findUserByEmailOrPhoneOrIpAddress;
-
-    private static boolean isValidEmail(String email) {
-        String emailRegex = "^[a-zA-Z0-9_.+-]+@[a-zA-Z0-9-]+\\.[a-zA-Z]{2,6}$";
-        return StringUtils.hasText(email) && Pattern.matches(emailRegex, email);
-    }
+    private final VerificationTokenService verificationTokenService;
 
     /**
      * Register/SignUp a New API Client/User
      */
-    public void register(RegisterRequest req,
-                         HttpServletRequest httpRequest) {
+    public VerificationDetails register(RegisterRequest req,
+                                        HttpServletRequest httpRequest) {
 
         String userEmail = req.getEmail();
 
-        if (userExists(userEmail)) {
+        if (userExists(userEmail) || !verificationTokenService.isValidEmail(userEmail)) {
             throw new GeneralException(userEmail, "User with already exist");
         }
 
-        // Create a New User
+        // 1️⃣ Create and save the user
         var user = User.builder()
                 .firstName(req.getFirstName())
                 .lastName(req.getLastName())
@@ -57,29 +50,44 @@ public class AuthenticationService {
                 .phone(req.getPhone())
                 .password(passwordEncoder.encode(req.getPassword()))
                 // By default, set Role to USER, if not provided
-                // .role(Role.USER)
                 .role(Role.valueOf(req.getRole().toUpperCase()))
                 .build();
 
         userRepository.save(user);
 
-        /*
-         * Send OTP & EMAIL CONFIRMATION */
-        emailConfirmationService.sendConfirmationMail(user);
+        // 2️⃣ Generate a verification OTP & token
+        var verify = verificationTokenService.saveEmailVerification(user);
 
+        return new VerificationDetails(
+                verify.get("otp").toString(),
+                verify.get("token").toString(),
+                verify.get("email").toString(),
+                "ACC_CREATED"
+        );
     }
 
     /**
      * Resend Confirm Registered/SignUp Email
      */
-    public void resendConfirmationMail(String email) {
+    public VerificationDetails resendConfirmationMail(String email) {
 
+        // 1️⃣ Check if user exists
         var user = findUserByEmail(email);
 
         // Is account not activated/verified?
-        if (!user.isEnabled()) {
-            emailConfirmationService.sendConfirmationMail(user);
+        if (user.isEnabled()) {
+            throw new GeneralException(email, "User account already activated");
         }
+
+        // 2️⃣ Generate a verification OTP & token
+        var verify = verificationTokenService.saveEmailVerification(user);
+
+        return new VerificationDetails(
+                verify.get("otp").toString(),
+                verify.get("token").toString(),
+                verify.get("email").toString(),
+                "ACC_RESEND"
+        );
     }
 
     /**
@@ -89,29 +97,14 @@ public class AuthenticationService {
         if (!StringUtils.hasText(token)) {
             throw new GeneralException(token, "Confirmation token is required");
         }
-        emailConfirmationService.confirmRegisteredEmail(token);
+        verificationTokenService.confirmAccount(token);
     }
 
     public void confirmOTP(String otp) {
         if (!StringUtils.hasText(otp)) {
             throw new GeneralException(otp, "OTP code is required");
         }
-        emailConfirmationService.otpMatches(otp);
-    }
-
-    /**
-     * Confirm Register/SignUp via Phone Number on Mobile-APP
-     */
-    public void confirmAccountViaPhone(String phoneNumber) {
-        var user = findUserByEmail(phoneNumber);
-
-        System.out.println("Steve ooo");
-        // Is account not activated/verified?
-        if (!user.isEnabled()) {
-            user.setEnabled(true);
-
-            userRepository.save(user);
-        }
+        verificationTokenService.otpMatches(otp);
     }
 
     /**
@@ -227,16 +220,22 @@ public class AuthenticationService {
                 );
     }
 
-    public void forgotPassword(String email, String otp) {
-        if (!userExists(email)) {
-            throw new GeneralException(email, "User email invalid");
-        }
+    public VerificationDetails forgotPassword(String email, String otp) {
         var user = findUserByEmail(email);
         if (!user.isEnabled() || otp.isEmpty()) {
-            throw new EntityNotFoundException(User.class, "{username} ", email);
+            throw new GeneralException(email, "User email invalid");
         }
 
-        emailConfirmationService.sendConfirmationMail(user);
+
+        // 2️⃣ Generate a verification OTP & token
+        var verify = verificationTokenService.saveEmailVerification(user);
+
+        return new VerificationDetails(
+                verify.get("otp").toString(),
+                verify.get("token").toString(),
+                verify.get("email").toString(),
+                "ACC_FORGOT"
+        );
     }
 
     private User findUserByEmail(String email) {

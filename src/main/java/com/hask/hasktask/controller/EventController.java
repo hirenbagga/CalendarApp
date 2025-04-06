@@ -1,8 +1,8 @@
 package com.hask.hasktask.controller;
 
+import com.hask.hasktask.event.EventProducer;
 import com.hask.hasktask.model.Event;
 import com.hask.hasktask.service.EventService;
-import com.hask.hasktask.service.KafkaProducerService;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
@@ -16,31 +16,37 @@ import java.util.List;
 public class EventController {
 
     final private EventService eventService;
-    final private KafkaProducerService kafkaProducerService;
+    final private EventProducer eventProducer;
 
-    public EventController(EventService eventService, KafkaProducerService kafkaProducerService) {
+    public EventController(EventService eventService, EventProducer eventProducer) {
         this.eventService = eventService;
-        this.kafkaProducerService = kafkaProducerService;
+        this.eventProducer = eventProducer;
     }
 
     @PostMapping
     public ResponseEntity<?> createEvent(@RequestBody Event body) {
-        var event = eventService.createEvent(body); // Save event to the database
-        kafkaProducerService.sendEventCreatedEvent(event.getEventId(), event.getEventName());  // Trigger Kafka event for event creation
+        // Save event to the database
+        var event = eventService.createEvent(body);
+        // Trigger Kafka event for event creation
+        eventProducer.sendEventCreatedEvent(event.getEventId(), event.getEventName());
+
         return ResponseEntity.status(HttpStatus.CREATED).build();
     }
 
     // Endpoint to delete an event
     @DeleteMapping("/{eventId}")
     public ResponseEntity<Void> deleteEvent(@PathVariable Long eventId) {
-        eventService.deleteEvent(eventId); // Delete event from the database
-        kafkaProducerService.sendEventDeletedEvent(eventId);  // Trigger Kafka event for event deletion
+        // Delete event from the database
+        eventService.deleteEvent(eventId);
+        // Trigger Kafka event for event deletion
+        eventProducer.sendEventDeletedEvent(eventId);
+
         return ResponseEntity.noContent().build();
     }
 
 
     @GetMapping("/{userId}/user")
-    public ResponseEntity<List<Event>> getEvents(@PathVariable Long userId) {
+    public ResponseEntity<List<Event>> getEventsByUserId(@PathVariable Long userId) {
         return ResponseEntity.ok(eventService.getEventsByUserId(userId));
     }
 

@@ -1,30 +1,24 @@
 
 package com.hask.hasktask.config;
 
-import com.hask.hasktask.model.Notification;
-import com.hask.hasktask.model.Task;
-import com.hask.hasktask.service.NotificationService;
-import com.hask.hasktask.service.TaskService;
 import org.apache.kafka.clients.consumer.ConsumerConfig;
-import org.apache.kafka.clients.consumer.ConsumerRecord;
-//import org.apache.kafka.clients.producer.ProducerConfig;
 import org.apache.kafka.common.serialization.StringDeserializer;
 import org.apache.kafka.common.serialization.StringSerializer;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.boot.context.properties.ConfigurationProperties;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.kafka.annotation.EnableKafka;
-import org.springframework.kafka.annotation.KafkaListener;
 import org.springframework.kafka.core.ConsumerFactory;
 import org.springframework.kafka.core.DefaultKafkaConsumerFactory;
 import org.springframework.kafka.core.DefaultKafkaProducerFactory;
 import org.springframework.kafka.core.KafkaTemplate;
+//import org.springframework.kafka.annotation.KafkaListener;
+//import org.apache.kafka.clients.consumer.ConsumerRecord;
+//import org.apache.kafka.clients.producer.ProducerConfig;
 //import org.springframework.kafka.listener.ConcurrentMessageListenerContainer;
 //import org.springframework.kafka.listener.MessageListener;
 
-import java.time.LocalDateTime;
 import java.util.HashMap;
 import java.util.Map;
 
@@ -39,14 +33,16 @@ public class KafkaConfig {
     @Value("${spring.kafka.consumer.group-id}")
     private String consumerGroupId;
 
-    private final TaskService taskService;
+    /* *private final TaskService taskService;
+    private final EventService eventService;
     private final NotificationService notificationService;
 
     @Autowired
-    public KafkaConfig(TaskService taskService, NotificationService notificationService) {
+    public KafkaConfig(TaskService taskService, EventService eventService, NotificationService notificationService) {
         this.taskService = taskService;
+        this.eventService = eventService;
         this.notificationService = notificationService;
-    }
+    }*/
 
     // Kafka Template (Producer) for sending events
     @Bean
@@ -70,75 +66,80 @@ public class KafkaConfig {
         return new DefaultKafkaConsumerFactory<>(consumerProps);
     }
 
+    /* * Common listener method to handle both task and event topics
     @KafkaListener(topics = "${haskTask.app.topics.taskTopic}", groupId = "task-consumer-group")
+    @KafkaListener(topics = "${haskTask.app.topics.eventTopic}", groupId = "event-consumer-group")
     public void listen(ConsumerRecord<String, String> record) {
         String message = record.value();
-        System.out.println("Received Kafka message: " + message);
+        System.out.println("Steve-Received Kafka message: " + message);
 
-        // Here you can process the message and invoke business logic
+        // Process the message using a common method
         processMessage(message);
     }
 
     private void processMessage(String message) {
-        // Example: Processing a Task Completed event
-        if (message.contains("TASK_COMPLETED")) {
-            Long taskId = extractTaskIdFromMessage(message);
-            Task task = taskService.getTaskById(taskId);
-
-            if (task != null) {
-                task.setCompleted(true);
-                taskService.updateTask(taskId, task);  // Updating task status
-                sendNotification("Task " + task.getTaskName() + " marked as completed.");
+        if (message.contains("TASK_COMPLETED") || message.contains("EVENT_COMPLETED") || message.contains("EVENT_DUE")) {
+            // Determine whether we are processing a task or event
+            if (message.contains("TASK_COMPLETED")) {
+                processTaskReminders(message);
+            } else if (message.contains("EVENT_COMPLETED") || message.contains("EVENT_DUE")) {
+                var status = message.contains("TASK_COMPLETED") ? " marked as completed." : " is due.";
+                processEventReminders(message, status);
             }
         }
-
-        // You can add more cases here for different event types
     }
+
+    private void processTaskReminders(String message) {
+        Long taskId = extractTaskIdFromMessage(message);
+        Task task = taskService.getTaskById(taskId);
+
+        if (task != null) {
+            task.setCompleted(true);
+            taskService.updateTask(taskId, task);  // Updating task status
+            notificationService.sendTaskNotification(
+                    task.getUser().getEmail(),
+                    "Task " + task.getTaskName() + " marked as completed.",
+                    task.getDueDate()
+            );
+        }
+    }
+
+    private void processEventReminders(String message, String status) {
+        Long eventId = extractTaskIdFromMessage(message);
+        Event event = eventService.getEventById(eventId);
+
+        if (event != null) {
+            event.setRecurring(false);
+            event.setReminderSent(true);
+            eventService.setReminderSent(event);  // Updating event status
+
+            notificationService.sendTaskNotification(
+                    event.getUser().getEmail(),
+                    "Event " + event.getEventName() + status,
+                    event.getStartDateTime()
+            );
+        }
+    }
+
 
     private Long extractTaskIdFromMessage(String message) {
         // Example: Extract task ID from message string
         return Long.parseLong(message.split("=")[1]);
-    }
-
-    private void sendNotification(String message) {
-        Notification notification = new Notification();
-        notification.setMessage(message);
-        notification.setTimestamp(LocalDateTime.now());
-        notification.setUserId(1L); // Use appropriate userId
-        notificationService.createNotification(notification);
-    }
+    }*/
 }
 
 
 
-/*
-import org.apache.kafka.clients.admin.NewTopic;
-import org.springframework.beans.factory.annotation.Value;
-import org.springframework.context.annotation.Bean;
-import org.springframework.context.annotation.Configuration;
-import org.springframework.kafka.config.TopicBuilder;
-
-@Configuration
-public class KafkaConfig {
-
-    @Value("${kafka.default-topic}")
-
-    @Bean
-    public NewTopic haskTopic() {
-        return TopicBuilder.name("alibou").build();
-    }
-}
-*/
 
 
 /*@Component
-public class EventDueChecker {
+public class EventDueReminder {
 
     @Autowired
     private EventService eventService;
 
     @Autowired
-    private EmailService emailService;
+    private notificationService notificationService;
 
     @Autowired
     private KafkaTemplate<String, String> kafkaTemplate;
@@ -152,7 +153,7 @@ public class EventDueChecker {
         dueEvents.parallelStream().forEach(event -> {
             try {
                 // Trigger email notification (synchronously or asynchronously)
-                emailService.sendEmail(event.getUserEmail(), "Event Due Reminder",
+                notificationService.sendEmail(event.getUserEmail(), "Event Due Reminder",
                         "Your event '" + event.getTitle() + "' is due now.");
 
                 // Optionally, send a Kafka message for further processing (e.g., logging, analytics)
@@ -180,7 +181,7 @@ public class EventService {
 }
 
 @Component
-public class EventDueChecker {
+public class EventDueReminder {
 
     private static final ExecutorService executorService = Executors.newFixedThreadPool(10);  // Limit to 10 concurrent tasks
 
@@ -188,7 +189,7 @@ public class EventDueChecker {
     private EventService eventService;
 
     @Autowired
-    private EmailService emailService;
+    private notificationService notificationService;
 
     @Scheduled(fixedRate = 60000)  // Runs every minute
     public void checkForDueEvents() {
@@ -200,7 +201,7 @@ public class EventDueChecker {
             executorService.submit(() -> {
                 try {
                     // Trigger email notification (asynchronously)
-                    emailService.sendEmail(event.getUserEmail(), "Event Due Reminder",
+                    notificationService.sendEmail(event.getUserEmail(), "Event Due Reminder",
                             "Your event '" + event.getTitle() + "' is due now.");
 
                     // Optionally, send a Kafka message for further processing (e.g., logging, analytics)

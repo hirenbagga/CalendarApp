@@ -58,6 +58,7 @@ haskTask:
       # Event Topic Name for Kafka
       eventTopic: event-topic
       taskTopic: task-topic
+      accountTopic: account-topic
     # 1 DAY / 24 HOURS = 86400000
     # 7 DAYS / 168 HOURS = 604800000
     jwtExpirationMs: 604800000
@@ -70,7 +71,11 @@ haskTask:
     emailVerifyExpirationMs: 600000
 
     # Change to Remote host in Production
-    hostName: " http://localhost:8080/api/v1/auth"
+    baseUrl: "http://localhost:8080"
+    apiEndpoint: "/api/v1/auth"
+
+    # For OTP Generation
+    otpChar: 0123456789ABCDEFGHIJKLMNOPQRSTUVWXYZ
 
     # Random 256 bit 32 Byte Hex (HS256) Key
     jwtSecret: 8e435e4f2a530f331a64948e38cd4e063ddac96447c52011f611b4c8d853ea9e

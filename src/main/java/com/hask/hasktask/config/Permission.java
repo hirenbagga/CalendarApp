@@ -1,4 +1,4 @@
-package com.hask.hasktask.service;
+package com.hask.hasktask.config;
 
 import lombok.Getter;
 import lombok.RequiredArgsConstructor;

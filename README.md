@@ -21,6 +21,7 @@
 
 The Hask Task API allows you to manage tasks and notifications. You can create tasks, update them, and monitor their
 status through notifications. The API integrates with Kafka to receive event-driven messages related to task updates.
+> [API Endpoints Documentation Link] (http://localhost:8080/swagger-ui/index.html)
 > [API Endpoints Documentation Link] (http://localhost:8181/swagger-ui/index.html)
 
 ```markdown
@@ -57,7 +58,7 @@ java
 ├── controller # REST Controllers (API endpoints)
 │ ├── AuthenticationController.java # Handles login, registration, etc.
 │ ├── EventController.java # Manages event-related API calls
-│ ├── NotificationController.java # Manages notification API calls
+│ ├── NotificationController.java # Manages steveNotification API calls
 │ ├── TaskController.java # Manages task-related API calls
 │ ├── TimerController.java # Manages timer-related API calls
 │ └── UserController.java # Manages user-related API calls
@@ -83,7 +84,7 @@ java
 │ ├── EventService.java # Handles event-related business logic
 │ ├── KafkaConsumer.java # Kafka consumer for event processing
 │ ├── KafkaProducerService.java # Kafka producer for event publishing
-│ ├── NotificationService.java # Handles notification sending logic
+│ ├── NotificationService.java # Handles steveNotification sending logic
 │ ├── OTPService.java # Handles OTP logic for authentication
 │ ├── Permission.java # Handles permissions and roles
 │ ├── RefreshTokenService.java # Handles refresh token-related logic

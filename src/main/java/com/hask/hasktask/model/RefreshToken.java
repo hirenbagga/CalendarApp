@@ -23,7 +23,7 @@ public class RefreshToken {
 
     @Id
     @GeneratedValue
-    private Integer id;
+    private Long id;
 
     @Column(name = "refresh_token")
     private String refreshToken;

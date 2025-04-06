@@ -1,15 +1,19 @@
 package com.hask.hasktask.model;
 
+import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 import io.swagger.v3.oas.annotations.Hidden;
 import jakarta.persistence.*;
-import lombok.Getter;
-import lombok.Setter;
+import lombok.*;
 
 import java.time.LocalDateTime;
 
 @Setter
 @Getter
 @Entity
+@Data
+@Builder
+@NoArgsConstructor
+@AllArgsConstructor
 @Table(name = "events")
 public class Event {
 
@@ -24,14 +28,25 @@ public class Event {
     private String meetingLink;
     private String location;
     private String blockColor;
-    private boolean isRecurring;
+    @Builder.Default
+    private boolean isRecurring = false;
     private String recurringType;
     private String recurringDays;
     private String recurringEndDate;
     private String description;
-    private Long userId;
+    @Builder.Default
+    private boolean isReminderSent = false;
 
-    public Event() {
-    }
+    @ManyToOne // This is a Many-to-One relationship with the User entity
+    @JoinColumn(name = "user_id", referencedColumnName = "id")
+    @JsonIgnoreProperties({
+            "role",
+            "password",
+            "enabled",
+            "createdAt",
+            "updatedAt",
+            "username",
+    }) // Hide these fields from the JSON response
+    private User user;
 
 }

@@ -15,8 +15,8 @@ import org.springframework.security.web.SecurityFilterChain;
 import org.springframework.security.web.authentication.UsernamePasswordAuthenticationFilter;
 import org.springframework.security.web.authentication.logout.LogoutHandler;
 
-import static com.hask.hasktask.service.Permission.*;
-import static com.hask.hasktask.service.Role.USER;
+import static com.hask.hasktask.config.Permission.*;
+import static com.hask.hasktask.config.Role.USER;
 import static org.springframework.http.HttpMethod.*;
 
 /*
@@ -54,7 +54,6 @@ public class SecurityConfig {
             basePath + "/events/**",
             basePath + "/task/**",
             basePath + "/timers/**",
-            basePath + "/notifications/**",
     };
 
 

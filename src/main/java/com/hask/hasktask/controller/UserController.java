@@ -1,5 +1,6 @@
 package com.hask.hasktask.controller;
 
+import com.hask.hasktask.model.ChangePasswordRequest;
 import com.hask.hasktask.model.User;
 import com.hask.hasktask.service.UserService;
 import lombok.RequiredArgsConstructor;
@@ -18,6 +19,13 @@ import java.util.List;
 @RequiredArgsConstructor
 @RequestMapping("/api/v1/users")
 public class UserController {
+    /*
+     * Security Flow: The Frontend (UI) sends an AccessToken with the request.
+     * If the AccessToken has expired, the Backend responds with a 401 Unauthorized error.
+     * The Frontend Interceptor then detects the 401 response,
+     * triggers a request to refresh the token,
+     * and retrieves a new AccessToken from the Backend using the RefreshToken.
+     */
 
     private final UserService userService;
 
@@ -49,9 +57,9 @@ public class UserController {
         return ResponseEntity.ok(userService.getByEmail(userId));
     }
 
-    @PatchMapping
-    public ResponseEntity<?> update(@RequestBody User request) {
-        userService.update(request);
+    @PutMapping("/change_password")
+    public ResponseEntity<?> changePassword(@RequestBody ChangePasswordRequest request) {
+        userService.changeUserPassword(request);
         return ResponseEntity.noContent().build();
     }
 

@@ -18,7 +18,7 @@ public class AccessTokenService {
     private final AccessTokenRepository accessTokenRepository;
 
     @Autowired
-    public AccessTokenService(JWTService jwtService, EmailSenderService emailSenderService, AccessTokenRepository accessTokenRepository) {
+    public AccessTokenService(JWTService jwtService, AccessTokenRepository accessTokenRepository) {
         this.jwtService = jwtService;
         this.accessTokenRepository = accessTokenRepository;
     }

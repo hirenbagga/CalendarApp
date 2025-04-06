@@ -1,13 +1,17 @@
 package com.hask.hasktask.model;
 
 
+import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 import io.swagger.v3.oas.annotations.Hidden;
 import jakarta.persistence.*;
-import lombok.Getter;
-import lombok.Setter;
+import lombok.*;
 
 @Setter
 @Getter
+@Data
+@Builder
+@NoArgsConstructor
+@AllArgsConstructor
 @Entity
 @Table(name = "timers")
 public class Timer {
@@ -19,8 +23,17 @@ public class Timer {
 
     private Long duration;
     private String status;
-    private Long userId;
 
-    public Timer() {}
+    @ManyToOne // This is a Many-to-One relationship with the User entity
+    @JoinColumn(name = "user_id", referencedColumnName = "id")
+    @JsonIgnoreProperties({
+            "role",
+            "password",
+            "enabled",
+            "createdAt",
+            "updatedAt",
+            "username",
+    }) // Hide these fields from the JSON response
+    private User user;
 
 }

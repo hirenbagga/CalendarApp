@@ -19,7 +19,7 @@ public class RefreshTokenService {
     private final RefreshTokenRepository refreshTokenRepository;
 
     @Autowired
-    public RefreshTokenService(JWTService jwtService, EmailSenderService emailSenderService, RefreshTokenRepository refreshTokenRepository) {
+    public RefreshTokenService(JWTService jwtService, RefreshTokenRepository refreshTokenRepository) {
         this.jwtService = jwtService;
         this.refreshTokenRepository = refreshTokenRepository;
     }

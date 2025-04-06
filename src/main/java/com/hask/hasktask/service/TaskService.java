@@ -1,9 +1,12 @@
 package com.hask.hasktask.service;
 
+import com.hask.hasktask.customException.GeneralException;
 import com.hask.hasktask.model.Task;
 import com.hask.hasktask.repository.TaskRepository;
+import com.hask.hasktask.repository.UserRepository;
 import org.springframework.stereotype.Service;
 
+import java.time.LocalDateTime;
 import java.util.List;
 import java.util.Optional;
 
@@ -11,12 +14,26 @@ import java.util.Optional;
 public class TaskService {
 
     final private TaskRepository taskRepository;
+    private final UserRepository userRepository;
 
-    public TaskService(TaskRepository taskRepository) {
+    public TaskService(TaskRepository taskRepository, UserRepository userRepository) {
         this.taskRepository = taskRepository;
+        this.userRepository = userRepository;
     }
 
-    public Task createTask(Task task) {
+    public List<Task> findDueTasks() {
+        LocalDateTime now = LocalDateTime.now(); // Get the current time
+        LocalDateTime windowEnd = now.plusMinutes(5); // Current time + 5 minutes window
+        return taskRepository.findByDueDateBetween(now, windowEnd); // Query based on LocalDateTime
+    }
+
+    public Task create(Task task) {
+        var user = userRepository.findById(task.getUser().getId())
+                .orElseThrow(() -> new GeneralException("User", "User not found"));
+
+        // Set the fetched User in the Event object
+        task.setUser(user);
+
         return taskRepository.save(task);
     }
 
@@ -29,13 +46,12 @@ public class TaskService {
         return task.orElse(null);
     }
 
-    public Task completeTask(Long taskId) {
+    public void completeTask(Long taskId) {
         Task task = getTaskById(taskId);
-        if (task != null) {
+        if (task != null && !task.isCompleted()) {
             task.setCompleted(true);
-            return taskRepository.save(task);
+            taskRepository.save(task);
         }
-        return null;
     }
 
     public void deleteTask(Long taskId) {
@@ -56,5 +72,10 @@ public class TaskService {
             existingTask.setCompleted(task.isCompleted());
             taskRepository.save(existingTask);
         }
+    }
+
+    public void setReminderSent(Task event) {
+        event.setTaskId(event.getTaskId());
+        taskRepository.save(event);
     }
 }

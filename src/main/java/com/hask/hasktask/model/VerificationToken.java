@@ -13,17 +13,15 @@ import java.util.Date;
 @NoArgsConstructor
 @AllArgsConstructor
 @Entity
-@Table(name = "email_confirmation")
-public class EmailConfirmation {
+@Table(name = "verification_token") // Account-Signup Verification Token
+public class VerificationToken {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
-    private Integer id;
+    private Long id;
 
-    private String confirmationToken;
-
-    private String otpCode;
-
-    private Date tokenExpiration;
+    private String token;
+    private String otp;
+    private Date expiryDate;
 
     @OneToOne(targetEntity = User.class)
     @JoinColumn(name = "user_id", referencedColumnName = "id")

@@ -23,7 +23,7 @@ public class AccessToken {
 
     @Id
     @GeneratedValue
-    private Integer id;
+    private Long id;
 
     @Column(name = "access_token")
     private String accessToken;

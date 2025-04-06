@@ -1,16 +1,20 @@
 package com.hask.hasktask.service;
 
 import com.hask.hasktask.customException.EntityNotFoundException;
+import com.hask.hasktask.customException.GeneralException;
+import com.hask.hasktask.model.ChangePasswordRequest;
 import com.hask.hasktask.model.User;
 import com.hask.hasktask.repository.UserRepository;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
+import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 import org.springframework.util.StringUtils;
 
 import java.security.Principal;
+import java.time.LocalDateTime;
 import java.util.List;
 import java.util.Optional;
 import java.util.regex.Pattern;
@@ -20,10 +24,12 @@ import java.util.stream.Collectors;
 public class UserService {
 
     private final UserRepository userRepository;
+    final private PasswordEncoder passwordEncoder;
 
     @Autowired
-    public UserService(UserRepository userRepository) {
+    public UserService(UserRepository userRepository, PasswordEncoder passwordEncoder) {
         this.userRepository = userRepository;
+        this.passwordEncoder = passwordEncoder;
     }
 
     private static boolean isValidEmail(String email) {
@@ -56,12 +62,27 @@ public class UserService {
         return (User) ((UsernamePasswordAuthenticationToken) loggedInUser).getPrincipal();
     }
 
-    public void update(User update) {
-        Integer id = update.getId();
-        var query = id.toString().isBlank() ?
-                userRepository.findByEmail(update.getEmail())
-                : userRepository.findById(id);
+    public void changeUserPassword(ChangePasswordRequest request) {
+        Long id = request.getId();
 
+        userRepository.findById(id)
+                .map(user -> updatePassword(request, user))
+                .orElseThrow(
+                        () -> new EntityNotFoundException(ChangePasswordRequest.class, "id", id.toString())
+                );
+    }
+
+    private User updatePassword(ChangePasswordRequest request, User user) {
+
+        // Check if new password matches confirm password
+        if (!request.getNewPassword().equals(request.getConfirmPassword())) {
+            throw new GeneralException("Mismatch", "Password did not match Confirm");
+        }
+
+        // Update the password
+        user.setPassword(passwordEncoder.encode(request.getNewPassword()));
+        user.setUpdatedAt(LocalDateTime.now()); // Last Updated Time
+        return userRepository.save(user); // save the new password
     }
 
     public void deleteByIdOrEmail(String any) {

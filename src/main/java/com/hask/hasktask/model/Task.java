@@ -1,16 +1,21 @@
 package com.hask.hasktask.model;
 
 
+import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
+import com.fasterxml.jackson.annotation.JsonView;
 import io.swagger.v3.oas.annotations.Hidden;
 import jakarta.persistence.*;
-import lombok.Getter;
-import lombok.Setter;
+import lombok.*;
 
 import java.time.LocalDateTime;
 
 @Setter
 @Getter
 @Entity
+@Data
+@Builder
+@NoArgsConstructor
+@AllArgsConstructor
 @Table(name = "tasks")
 public class Task {
 
@@ -21,10 +26,26 @@ public class Task {
 
     private String taskName;
     private LocalDateTime dueDate;
-    private boolean isCompleted;
-    private Long userId;
+    @Builder.Default
+    private boolean isCompleted = false;
     private String taskDescription;
+    @Builder.Default
+    private boolean isReminderSent = false;
 
-    public Task() {}
+    @ManyToOne // This is a Many-to-One relationship with the User entity
+    @JoinColumn(name = "user_id", referencedColumnName = "id")
+    @JsonIgnoreProperties({
+            "role",
+            "password",
+            "enabled",
+            "createdAt",
+            "updatedAt",
+            "username",
+            "firstName", // Ignore firstName for POST
+            "lastName",  // Ignore lastName for POST
+            "email",     // Ignore email for POST
+            "phone"      // Ignore phone for POST
+    }) // Hide these fields from the JSON response
+    private User user;
 
 }

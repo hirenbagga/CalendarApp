@@ -1,7 +1,7 @@
 package com.hask.hasktask.model;
 
 import com.fasterxml.jackson.annotation.JsonIgnore;
-import com.hask.hasktask.service.Role;
+import com.hask.hasktask.config.Role;
 import jakarta.persistence.*;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
@@ -24,7 +24,7 @@ import java.util.Collection;
 public class User implements UserDetails {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
-    private Integer id;
+    private Long id;
 
     @Enumerated(EnumType.STRING)
     @Builder.Default
