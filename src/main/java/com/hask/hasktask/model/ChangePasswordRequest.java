@@ -9,7 +9,7 @@ import lombok.Data;
 public class ChangePasswordRequest {
 
     @Column(insertable = false, updatable = false)
-    private Long id;
+    private String email;
     private String newPassword;
     private String confirmPassword;
 }

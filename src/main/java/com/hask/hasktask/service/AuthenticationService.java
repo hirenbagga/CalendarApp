@@ -17,6 +17,7 @@ import org.springframework.stereotype.Service;
 import org.springframework.util.StringUtils;
 
 import java.io.IOException;
+import java.time.LocalDateTime;
 
 @Service
 @RequiredArgsConstructor
@@ -125,6 +126,10 @@ public class AuthenticationService {
             throw new EntityNotFoundException(User.class, "{password} ", password);
         }*/
 
+        return getJWTResponse(username, password);
+    }
+
+    private JWTResponse getJWTResponse(String username, String password) {
         var user = findUserByEmail(username);
 
         authenticationManager.authenticate(
@@ -220,6 +225,16 @@ public class AuthenticationService {
                 );
     }
 
+
+    public JWTResponse verifyResetPasswordOTP(String otp, String email) {
+        if (!StringUtils.hasText(otp) || !StringUtils.hasText(email)) {
+            throw new GeneralException(otp, "OTP code is required");
+        }
+
+        verificationTokenService.otpMatches(otp);
+        return getJWTResponse(email, otp);
+    }
+
     public VerificationDetails forgotPassword(String email) {
         var user = findUserByEmail(email);
         if (!user.isEnabled()) {
@@ -230,9 +245,16 @@ public class AuthenticationService {
         // 2️⃣ Generate a verification OTP & token
         var verify = verificationTokenService.saveEmailVerification(user);
 
+        String otp = verify.get("otp").toString();
+
+        // Update the password with Temporal OTP
+        user.setPassword(passwordEncoder.encode(otp));
+        user.setUpdatedAt(LocalDateTime.now()); // Last Updated Time
+        userRepository.save(user); // save the new password
+
         return new VerificationDetails(
                 verify.get("token").toString(),
-                verify.get("otp").toString(),
+                otp,
                 email,
                 "ACC_FORGOT"
         );

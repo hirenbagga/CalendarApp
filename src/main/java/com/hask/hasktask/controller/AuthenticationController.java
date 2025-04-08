@@ -13,6 +13,7 @@ import jakarta.servlet.http.HttpServletResponse;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.ResponseEntity;
+import org.springframework.util.StringUtils;
 import org.springframework.web.bind.annotation.*;
 
 import java.io.IOException;
@@ -59,8 +60,16 @@ public class AuthenticationController {
      * <a href="http://hostname/api/v1/auth/account/confirm_otp?otp=465758">...</a>
      */
     @GetMapping("/account/confirm_otp")
-    public void confirmOTP(@RequestParam String otp) {
-        authenticationService.confirmOTP(otp);
+    public ResponseEntity<JWTResponse> confirmOTP(@RequestParam String otp, @RequestParam(required = false) String email) {
+        if (StringUtils.hasText(otp)) {
+            if (StringUtils.hasText(email)) {
+                return ResponseEntity.ok(authenticationService.verifyResetPasswordOTP(otp, email));
+            } else {
+                authenticationService.confirmOTP(otp);
+                return ResponseEntity.ok().build(); // Or appropriate response for successful OTP confirmation without email
+            }
+        }
+        return ResponseEntity.badRequest().body(null); // Handle case where OTP is not provided
     }
 
     /*

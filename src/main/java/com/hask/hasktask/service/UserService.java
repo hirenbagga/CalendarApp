@@ -63,12 +63,12 @@ public class UserService {
     }
 
     public void changeUserPassword(ChangePasswordRequest request) {
-        Long id = request.getId();
+        String email = request.getEmail();
 
-        userRepository.findById(id)
+        userRepository.findByEmail(email)
                 .map(user -> updatePassword(request, user))
                 .orElseThrow(
-                        () -> new EntityNotFoundException(ChangePasswordRequest.class, "id", id.toString())
+                        () -> new EntityNotFoundException(ChangePasswordRequest.class, "email", email)
                 );
     }
 
