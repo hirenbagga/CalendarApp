@@ -1,4 +1,4 @@
-# HASK TASK API DOCUMENTATION:
+# HASK TASK Calendar App DOCUMENTATION:
 
 ## Table of Contents
 
@@ -111,7 +111,7 @@ easier to maintain, extend, and test.
                         │   ├── TimerRepository.java # Repository for Timer entity
                         │   └── UserRepository.java # Repository for User entity
                         │
-                        │ # Event and Lister Directories are for Kafka (Event-Driven Architecture)
+                        │ # Event and Listener Directories are for Kafka (Event-Driven Architecture)
                         ├── event
                         │   ├── EventProducer.java # Kafka producer for sending events
                         │   ├── TaskProducer.java # Kafka producer for sending task events
@@ -574,4 +574,4 @@ Errors are returned in a standard format:
 - ![event-based-uml.png](src/main/resources/static/event-based-uml.png)
 
 
-# Thanks for using the Hask Task API!
+# Thanks for using the Hask Task Calendar App!
